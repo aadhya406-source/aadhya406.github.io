@@ -1,0 +1,838 @@
+/* =========================================================
+   Aadhya Sharma — Resume Website
+   ---------------------------------------------------------
+   Theme: "soft scrapbook". Baby pink and green smoke, with
+   a bento-grid hero, ticket-style education cards, polaroid
+   photos, a letter for contact, and a floating pill nav.
+
+   1. Colour palette & fonts (CSS variables)
+   2. Element selectors (base styles)
+   3. Top bar & floating dock nav (#topbar, #dock)
+   4. Bento hero (#home, CSS grid areas)
+   5. Scrolling ribbon (animation)
+   6. Chapter headings & about
+   7. Zig-zag leadership cards
+   8. Ticket education cards
+   9. Polaroids
+   10. Skill cloud, letter, footer
+   11. Responsive (media queries)
+   ========================================================= */
+
+
+/* ---------- 1. Colour palette & fonts ---------- */
+:root {
+  /* baby pink family */
+  --pink:       #F7C6D3;
+  --pink-soft:  #FDE8EE;
+  --pink-deep:  #E39AB0;
+
+  /* green smoke family */
+  --smoke:      #8C9B87;
+  --smoke-soft: #DFE5DA;
+  --smoke-deep: #4E5C4B;
+
+  --ink:   #2E382D;   /* text: a very dark green smoke */
+  --paper: #FFF9FA;   /* background: almost-white with a pink tint */
+  --white: #FFFFFF;
+
+  --serif: "DM Serif Display", Georgia, serif;
+  --sans:  "Outfit", "Helvetica Neue", Arial, sans-serif;
+  --hand:  "Caveat", cursive;
+
+  --radius: 26px;
+}
+
+
+/* ---------- 2. Element selectors ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.65;
+  padding-bottom: 110px;          /* room for the floating dock */
+}
+
+h1, h2, h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+a { color: inherit; text-decoration: none; }
+
+ul { list-style: none; }
+
+/* stops the tilted ribbon from causing sideways scrolling */
+main { overflow-x: clip; }
+
+em { font-style: italic; }
+
+mark {
+  background: linear-gradient(transparent 55%, var(--pink) 55%);
+  color: inherit;
+  padding: 0 3px;
+}
+
+::selection { background: var(--pink); }
+
+section { scroll-margin-top: 30px; }
+
+/* handwritten little notes, used in several places */
+.note {
+  font-family: var(--hand);
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--pink-deep);
+  line-height: 1.1;
+}
+
+
+/* ---------- 3. Top bar & floating dock ---------- */
+#topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 26px 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+}
+
+.brand-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 8px 0 0 var(--smoke);   /* a second dot, made with a shadow */
+  margin-right: 8px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 400;
+  background: var(--smoke-soft);
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--smoke-deep);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(1.5); }
+}
+
+/* the dock: fixed, centred at the bottom of the screen */
+#dock {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  gap: 4px;
+  padding: 7px;
+  background: rgba(46, 56, 45, 0.92);
+  backdrop-filter: blur(10px);
+  border-radius: 999px;
+  box-shadow: 0 12px 30px rgba(46, 56, 45, 0.25);
+}
+
+#dock a {
+  padding: 9px 18px;
+  border-radius: 999px;
+  color: var(--smoke-soft);
+  font-size: 0.92rem;
+  font-weight: 400;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+#dock a:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
+}
+
+#dock .dock-cta {
+  background: var(--pink);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+#dock .dock-cta:hover { background: var(--white); color: var(--ink); }
+
+
+/* ---------- 4. Bento hero ---------- */
+.bento {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 24px 60px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(150px, auto);
+  gap: 18px;
+  grid-template-areas:
+    "hello hello arch  stat1"
+    "hello hello arch  stat2"
+    "deg   deg   music music";
+}
+
+.tile {
+  border-radius: var(--radius);
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.tile:hover { transform: translateY(-4px); }
+
+.tile-hello {
+  grid-area: hello;
+  background: var(--pink-soft);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 40px;
+}
+
+.tile-hello h1 {
+  font-size: clamp(3.4rem, 7.5vw, 6.4rem);
+  letter-spacing: -0.02em;
+  margin: 8px 0 18px;
+}
+
+.tile-hello h1 em { color: var(--smoke-deep); }
+
+.hello-text {
+  max-width: 36ch;
+  font-size: 1.1rem;
+}
+
+/* arch-shaped "portrait" with initials */
+.tile-arch {
+  grid-area: arch;
+  background: var(--smoke);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+.arch {
+  width: 100%;
+  height: 260px;
+  border-radius: 999px 999px 18px 18px;   /* rounded top = arch */
+  background: var(--pink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arch span {
+  font-family: var(--serif);
+  font-size: 4.5rem;
+  color: var(--smoke-deep);
+}
+
+.arch-caption {
+  font-size: 0.85rem;
+  color: var(--white);
+  letter-spacing: 0.06em;
+}
+
+.tile-stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tile-stat strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.tile-stat span { font-size: 0.95rem; }
+
+.tile-stat.pink  { grid-area: stat1; background: var(--pink); }
+.tile-stat.green { grid-area: stat2; background: var(--smoke-soft); }
+
+.tile-degrees {
+  grid-area: deg;
+  background: var(--smoke-deep);
+  color: var(--white);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+
+.tile-label {
+  width: 100%;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pink);
+}
+
+.degree {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  padding: 6px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+}
+
+.tile-music {
+  grid-area: music;
+  background: var(--white);
+  border: 1.5px dashed var(--pink-deep);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 1.15rem;
+}
+
+.music-icon {
+  flex-shrink: 0;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: var(--pink-soft);
+  color: var(--pink-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+
+/* ---------- 5. Scrolling ribbon ---------- */
+.ribbon {
+  background: var(--smoke-deep);
+  color: var(--pink);
+  overflow: hidden;
+  padding: 16px 0;
+  transform: rotate(-1.5deg);
+  margin: 10px -10px 40px;
+}
+
+.ribbon-track {
+  display: flex;
+  gap: 28px;
+  width: max-content;
+  animation: slide 30s linear infinite;
+}
+
+.ribbon-track span {
+  font-family: var(--serif);
+  font-size: 1.7rem;
+  white-space: nowrap;
+}
+
+/* content is written twice, so moving it -50% loops seamlessly */
+@keyframes slide {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+
+/* ---------- 6. Chapter headings & about ---------- */
+.chapter {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 24px;
+}
+
+.chapter-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  margin-bottom: 46px;
+}
+
+/* big outlined number, made with a text stroke */
+.chapter-num {
+  font-family: var(--serif);
+  font-size: 5rem;
+  line-height: 0.8;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--smoke);
+}
+
+.chapter-head h2 { font-size: clamp(2.2rem, 4.5vw, 3.4rem); }
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 50px;
+  align-items: end;
+}
+
+.about-big {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+  line-height: 1.25;
+}
+
+.about-small {
+  color: var(--smoke-deep);
+  border-left: 3px solid var(--pink);
+  padding-left: 22px;
+}
+
+
+/* ---------- 7. Zig-zag leadership cards ---------- */
+.zigzag {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+/* dashed line down the middle */
+.zigzag::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 2px dashed var(--smoke);
+  opacity: 0.6;
+}
+
+.z-card {
+  position: relative;
+  width: 47%;
+  background: var(--white);
+  border: 1px solid var(--smoke-soft);
+  border-radius: var(--radius);
+  padding: 30px;
+  box-shadow: 0 8px 24px rgba(78, 92, 75, 0.07);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.z-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 34px rgba(78, 92, 75, 0.14);
+}
+
+/* odd cards sit left, even cards sit right */
+.z-card:nth-child(odd)  { align-self: flex-start; }
+.z-card:nth-child(even) { align-self: flex-end; }
+
+/* a dot on the dashed line next to each card */
+.z-card::after {
+  content: "";
+  position: absolute;
+  top: 34px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 4px solid var(--paper);
+  background: var(--pink-deep);
+}
+
+.z-card:nth-child(odd)::after  { right: calc(-6.4% - 9px); }
+.z-card:nth-child(even)::after { left:  calc(-6.4% - 9px); background: var(--smoke); }
+
+.z-tag {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--pink-soft);
+  color: var(--smoke-deep);
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
+.z-card:nth-child(even) .z-tag { background: var(--smoke-soft); }
+
+.z-card h3 { font-size: 1.65rem; }
+
+.z-sub {
+  font-family: var(--hand);
+  font-size: 1.35rem;
+  color: var(--pink-deep);
+  margin: 2px 0 12px;
+}
+
+.z-card li,
+.polaroid li {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 6px;
+}
+
+/* little flower as the bullet */
+.z-card li::before,
+.polaroid li::before {
+  content: "\273F";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 0.85rem;
+  color: var(--smoke);
+}
+
+
+/* ---------- 8. Ticket education cards ---------- */
+.tickets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.ticket {
+  display: flex;
+  border-radius: 20px;
+  background: var(--pink-soft);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.ticket:hover { transform: rotate(-1deg) scale(1.02); }
+
+.ticket:nth-child(2) { background: var(--smoke-soft); }
+
+.ticket-main {
+  flex: 1;
+  padding: 26px;
+}
+
+.ticket-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--smoke-deep);
+  margin-bottom: 12px;
+}
+
+.ticket h3 {
+  font-size: 1.45rem;
+  margin-bottom: 8px;
+}
+
+/* the tear-off stub, separated by a dashed line */
+.ticket-stub {
+  position: relative;
+  width: 64px;
+  border-left: 2px dashed rgba(78, 92, 75, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* two half-circle notches cut into the ticket */
+.ticket-stub::before,
+.ticket-stub::after {
+  content: "";
+  position: absolute;
+  left: -11px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--paper);
+}
+
+.ticket-stub::before { top: -10px; }
+.ticket-stub::after  { bottom: -10px; }
+
+.ticket-stub span {
+  writing-mode: vertical-rl;       /* text runs top to bottom */
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  letter-spacing: 0.15em;
+  color: var(--smoke-deep);
+}
+
+.ticket-scores {
+  background: var(--smoke-deep);
+  color: var(--white);
+}
+
+.ticket-scores .ticket-label,
+.ticket-scores .ticket-stub span { color: var(--pink); }
+
+.ticket-scores .ticket-stub { border-left-color: rgba(255, 255, 255, 0.3); }
+
+.scores {
+  display: flex;
+  gap: 26px;
+  margin-top: 6px;
+}
+
+.scores p { display: flex; flex-direction: column; font-size: 0.9rem; }
+
+.scores strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 2.4rem;
+  line-height: 1.1;
+  color: var(--pink);
+}
+
+
+/* ---------- 9. Polaroids ---------- */
+.polaroids {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 34px;
+  padding-top: 10px;
+}
+
+.polaroid {
+  position: relative;
+  background: var(--white);
+  padding: 16px 16px 26px;
+  box-shadow: 0 10px 28px rgba(46, 56, 45, 0.12);
+  transition: transform 0.35s ease;
+}
+
+/* each polaroid is tilted a different way */
+.polaroid:nth-child(1) { transform: rotate(-3deg); }
+.polaroid:nth-child(2) { transform: rotate(2deg) translateY(18px); }
+.polaroid:nth-child(3) { transform: rotate(-1.5deg); }
+
+.polaroid:hover {
+  transform: rotate(0) scale(1.04);
+  z-index: 2;
+}
+
+/* a strip of "tape" on top */
+.polaroid::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  width: 90px;
+  height: 26px;
+  transform: translateX(-50%) rotate(-3deg);
+  background: rgba(247, 198, 211, 0.75);
+}
+
+.photo {
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.photo-music { background: var(--pink);       color: var(--white); }
+.photo-write { background: var(--smoke-soft); color: var(--smoke-deep); }
+.photo-speak { background: var(--smoke);      color: var(--pink-soft); }
+
+.polaroid .note { margin-bottom: 10px; }
+
+.polaroid li { font-size: 0.95rem; }
+
+
+/* ---------- 10. Skill cloud, letter, footer ---------- */
+.skill-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+}
+
+.skill-cloud li {
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: 1.5px solid var(--smoke);
+  font-weight: 400;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.skill-cloud li:nth-child(3n) { background: var(--pink-soft); border-color: var(--pink); }
+
+.skill-cloud li.lg {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  background: var(--smoke-deep);
+  border-color: var(--smoke-deep);
+  color: var(--pink-soft);
+}
+
+.skill-cloud li:hover { transform: rotate(-3deg) scale(1.05); }
+
+/* letter on lined paper */
+.letter {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 56px 56px 46px;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(
+      transparent 0 37px,
+      rgba(140, 155, 135, 0.25) 37px 38px
+    ),
+    var(--white);
+  box-shadow: 0 18px 40px rgba(46, 56, 45, 0.12);
+  border-top: 10px solid var(--pink);
+}
+
+.stamp {
+  position: absolute;
+  top: 26px;
+  right: 30px;
+  width: 78px;
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px dashed var(--smoke);
+  background: var(--smoke-soft);
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  color: var(--smoke-deep);
+  transform: rotate(6deg);
+}
+
+.letter h2 {
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  max-width: 20ch;
+  margin: 10px 0 18px;
+}
+
+.letter > p { max-width: 46ch; color: var(--smoke-deep); }
+
+.mail-btn {
+  display: inline-block;
+  margin-top: 26px;
+  padding: 14px 26px;
+  border-radius: 999px;
+  background: var(--smoke-deep);
+  color: var(--white);
+  font-weight: 400;
+  overflow-wrap: anywhere;
+  transition: background 0.2s ease;
+}
+
+.mail-btn:hover { background: var(--pink-deep); }
+
+.signature {
+  font-family: var(--hand);
+  font-size: 2rem;
+  color: var(--pink-deep) !important;
+  margin-top: 24px;
+}
+
+footer {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--smoke);
+  padding: 20px 24px;
+}
+
+/* respect users who turn off motion */
+@media (prefers-reduced-motion: reduce) {
+  .ribbon-track, .pulse { animation: none; }
+  html { scroll-behavior: auto; }
+}
+
+
+/* ---------- 11. Responsive ---------- */
+@media (max-width: 960px) {
+  .bento {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas:
+      "hello hello"
+      "arch  stat1"
+      "arch  stat2"
+      "deg   deg"
+      "music music";
+  }
+
+  .about-grid,
+  .tickets,
+  .polaroids { grid-template-columns: 1fr; }
+
+  .polaroids { max-width: 420px; margin: 0 auto; gap: 44px; }
+  .polaroid:nth-child(2) { transform: rotate(2deg); }
+
+  /* zig-zag becomes one column with the line on the left */
+  .zigzag { padding-left: 34px; }
+  .zigzag::before { left: 8px; }
+
+  .z-card,
+  .z-card:nth-child(odd),
+  .z-card:nth-child(even) { width: 100%; align-self: stretch; }
+
+  .z-card:nth-child(odd)::after,
+  .z-card:nth-child(even)::after { left: -36px; right: auto; }
+}
+
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+
+  #topbar { padding: 20px 16px; }
+  .status { display: none; }
+
+  .bento {
+    grid-template-columns: 1fr;
+    grid-template-areas: "hello" "arch" "stat1" "stat2" "deg" "music";
+    padding: 0 16px 40px;
+  }
+
+  .tile-hello { padding: 30px 24px; }
+  .arch { height: 200px; max-width: 240px; }
+  .degree { font-size: 1.25rem; }
+
+  .chapter { padding: 60px 16px; }
+  .chapter-num { font-size: 3.6rem; }
+
+  .z-card { padding: 24px 20px; }
+
+  .letter { padding: 120px 24px 36px; }
+  .stamp { top: 22px; right: auto; left: 24px; }
+
+  /* the dock spans the screen and scrolls sideways if needed */
+  #dock {
+    left: 12px;
+    right: 12px;
+    transform: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  #dock { justify-content: space-between; }
+  #dock a { padding: 8px 10px; font-size: 0.85rem; }
+  #dock a:first-child { display: none; }   /* hide "Home" to save space */
+}
